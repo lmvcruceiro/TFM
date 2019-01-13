@@ -4,7 +4,7 @@ library(igraph)
 library(dplyr)
 
 stationsData <- fread("Data/stations.csv")
-stationsDataName <- stationsData %>% select(id, name)
+stationsDataName <- stationsData %>% select(id, name, latitude, longitude)
 
 ##--Cleaning Names--##
 stationsDataName$name <- gsub(x = stationsDataName$name, pattern = "Puerta del Sol", replacement = "Sol")
@@ -124,7 +124,9 @@ gmaxSD <- sd(E(gmax)$weight)
 
 cut.off <- mean(E(gmax)$weight) 
 
-g.spAll <- delete_edges(gmax, E(gmax)[E(gmax)$weight<(cut.off + 6*gmaxSD)])
+g.spAll <- delete_edges(gmax, E(gmax)[E(gmax)$weight<(cut.off + gmaxSD)])
+#g.spAll <- gmax
+
 ccs <- clusters(g.spAll)
 
 imax <- which.max(ccs$csize)
@@ -145,7 +147,7 @@ is.connected(g.spAll)
 #layout_on_grid
 #layout_nicely
 #ll <- layout_as_star(center = "Puerta de Toledo", graph = as.undirected(g.sp))
-plot(as.undirected(g.spAll),layout=layout_with_lgl, vertex.size = deg/(max(deg)/20), 
+plot(as.undirected(g.spAll),layout=layout_on_sphere, vertex.size = deg/(max(deg)/20), 
      edge.arrow.mode = 0, edge.curved = .1, edge.width=E(g.spAll)$weight/80000, vertex.color = "orange", main = "All")
 cfg <- cluster_fast_greedy(as.undirected(g.spAll))
 plot(cfg, as.undirected(g.spAll), main = "All")
@@ -330,3 +332,8 @@ plot(as.undirected(g.spOut),layout=layout_with_gem, vertex.size = deg/(max(deg)/
      edge.arrow.mode = 0, edge.curved = .1, edge.width=E(g.spOut)$weight/80000, vertex.color = "orange", main = "Out")
 cfg <- cluster_fast_greedy(as.undirected(g.spOut))
 plot(cfg, as.undirected(g.spOut), main = "Out")
+
+
+
+
+
