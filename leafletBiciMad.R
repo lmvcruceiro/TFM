@@ -1,4 +1,34 @@
 library(leaflet)
+source("TFM/SortPoints.R")
+
+
+communityDF <- data_frame(comName = names(membership(cfg)), comMembership = membership(cfg))
+stationsDataWithCoords <- full_join(stationsDataName, communityDF, by = c("name" = "comName"))
+
+stationsForCommunityPlot <- na.exclude(stationsDataWithCoords)
+pruebaPlot <- stationsForCommunityPlot %>% group_by(comMembership) %>% arrange(comMembership, desc(longitude), latitude)
+
+communityNumbers <- sort(unique(stationsForCommunityPlot$comMembership))
+
+m <- leaflet()%>%
+  addTiles()%>%
+  setView(lng = -3.68, lat = 40.43, zoom = 12.5)
+
+paletteOfColors <- c("red", "blue", "yellow", "violet", "aqua", "orange", "green")
+for(comNumber in communityNumbers){
+  communityData <- pruebaPlot %>% filter(comMembership == comNumber)
+  communityData <- as.data.frame(communityData)
+  communityData <-  sort_points(communityData, y = "latitude", x = "longitude", clockwise = TRUE)
+  latitude <- communityData$latitude
+  longitude <- communityData$longitude
+  
+ m <- m %>% addPolygons(lat = c(latitude), lng = c(longitude), color = paletteOfColors[comNumber])
+
+  
+}
+m
+
+
 
 
 ##-- Cluster 1 --##
